@@ -36,6 +36,6 @@ $color = rpress_get_option( 'checkout_color', 'red' );
         </div>
       </div>
     </div>
-  </div>
+  </div>x
 </div>
 <!-- End Bootstrap Modal -->

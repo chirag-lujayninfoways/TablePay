@@ -13,10 +13,10 @@ jQuery(document).ready(function($) {
     var item_id = $this.attr('data-fooditem-id');
     var price   = $this.attr('data-price');
 
-    if ( typeof Cookies.get('service_type') == 'undefined' ){
-      rpress_display_service_options( item_id );
-      return true;
-    }
+    // if ( typeof Cookies.get('service_type') == 'undefined' ){
+    //   rpress_display_service_options( item_id );
+    //   return true;
+    // }
 
     var data = {
         action:         'rpress_fooditem_options',
@@ -43,7 +43,9 @@ jQuery(document).ready(function($) {
 
       success: function(response) {
 
-        $.fancybox.close(true);
+        // console.log(response);
+
+       $.fancybox.close(true);
 
         $('#rpressModal .modal-title').html(response.data.html_title);
         $('#rpressModal .modal-body').html(response.data.html);
@@ -113,7 +115,6 @@ jQuery(document).ready(function($) {
             }
             $('.rpress-delivery-wrap').find('.rpress-delivery-time-wrap,.rpress-pickup-time-wrap').show();
         }
-
 
         if ( serviceDate !== '' || serviceDate != undefined ) {
           $('.rpress-delivery-wrap').find('.rpress_get_delivery_dates').val(serviceDate);
