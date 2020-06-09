@@ -763,15 +763,5 @@ function twentytwenty_get_elements_array() {
 add_action('admin_menu','remove_menu');
 function remove_menu()
 {
-	remove_menu_page('edit-comments.php');
-	
-}
-
-add_action( 'init', 'add_order_cat_filter' );
-function add_order_cat_filter()
-{
-	if ( is_page('') )
-	{
-
-	}
+	remove_menu_page('edit-comments.php');	
 }

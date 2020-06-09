@@ -715,4 +715,22 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 			)
 		);
 	}
+
+	public function order_filter_form()
+	{
+		$cat_type = isset( $_GET['order_type'] ) ? $_GET['order_type'] : '';
+	?>	
+			<div class="order_cat_filter">	
+				<form method="GET">	
+					<select class="order_cat_list" name="order_type">
+						<option value="food"> Food </option>
+						<option value="drinks"> Drinks </option>
+					</select>
+					<input type="submit" class="button" value="Apply">
+				</form>	
+			</div>
+	<?php	
+	}
 }
+
+
