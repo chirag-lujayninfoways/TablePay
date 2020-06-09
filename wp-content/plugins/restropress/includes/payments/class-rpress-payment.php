@@ -760,7 +760,7 @@ class RPRESS_Payment {
 												$increase_earnings += (float) $fee['amount'];
 											}
 										}
-
+										
 										$fooditem = new RPRESS_Fooditem( $item['id'] );
 										$fooditem->increase_sales( $item['quantity'] );
 										$fooditem->increase_earnings( $increase_earnings );
@@ -1083,8 +1083,20 @@ class RPRESS_Payment {
 
 			$this->fooditems    = array_values( $this->fooditems );
 
+				$food_list_id = $this->fooditems;
+				foreach($food_list_id as $list):
+						$id[] .= $list['id'];
+				endforeach;
+				print_r($id);
+
+				$cat_id = implode(",", $id);
+			$this->update_meta( '_rpress_cat_id', $cat_id);
+
+				exit;
+
 			$new_meta = array(
 				'fooditems'     => $this->fooditems,
+
 				'cart_details'  => $this->cart_details,
 				'fees'          => $this->fees,
 				'currency'      => $this->currency,

@@ -435,7 +435,7 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 	 */
 	public function get_bulk_actions() {
 		$actions = array(
-			'delete'                 				 => __( 'Delete',				'restropress' ),
+			'delete'                 		 => __( 'Delete',				'restropress' ),
 			'set-payment-status-pending'     => __( 'Set Payment To Pending',		'restropress' ),
 			'set-payment-status-processing'  => __( 'Set Payment To Processing',	'restropress' ),
 			'set-payment-status-refunded'    => __( 'Set Payment To Refunded',		'restropress' ),
@@ -578,6 +578,10 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 		if ( ! empty( $_GET['gateway'] ) && $_GET['gateway'] !== 'all' ) {
 			$args['gateway'] = $_GET['gateway'];
 		}
+		
+		// if ( ! empty( $_GET['order-type'] ) && $_GET['order-type'] !== 'all' ) {
+		// 	$args['order-type'] = $_GET['order-type'];
+		// }
 
 		$payment_count          	= rpress_count_payments( $args );
 		$this->completed_count   	= (isset($payment_count->completed))? $payment_count->completed : 0;
@@ -597,6 +601,7 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 	 */
 	public function payments_data() {
 
+
 		$per_page   = $this->per_page;
 		$orderby    = isset( $_GET['orderby'] )     ? urldecode( $_GET['orderby'] )              : 'ID';
 		$order      = isset( $_GET['order'] )       ? $_GET['order']                             : 'DESC';
@@ -611,6 +616,7 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 		$start_date = isset( $_GET['start-date'] )  ? sanitize_text_field( $_GET['start-date'] ) : null;
 		$end_date   = isset( $_GET['end-date'] )    ? sanitize_text_field( $_GET['end-date'] )   : $start_date;
 		$gateway    = isset( $_GET['gateway'] )     ? sanitize_text_field( $_GET['gateway'] )    : null;
+		$catorder   = isset( $_GET['order-type'] )  ? sanitize_text_field( $_GET['order-type'] ) : null;
 
 		/**
 		 * Introduced as part of #6063. Allow a gateway to specified based on the context.
@@ -627,6 +633,14 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 
 		if ( $gateway === 'all' ) {
 			$gateway = null;
+		}
+		if ( $catorder === 'all' ) {
+			$catorder = null;
+		}
+		
+		if(isset( $_GET['cat_submit'] ))
+		{
+			$catorder = $_GET['order-type'];
 		}
 
 		$args = array(
@@ -645,8 +659,8 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 			's'          => $search,
 			'start_date' => $start_date,
 			'end_date'   => $end_date,
-			'gateway'    => $gateway
-		);
+			'gateway'    => $gateway	
+		); 
 
 		if( is_string( $search ) && false !== strpos( $search, 'txn:' ) ) {
 
@@ -718,19 +732,28 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 
 	public function order_filter_form()
 	{
-		$cat_type = isset( $_GET['order_type'] ) ? $_GET['order_type'] : '';
-	?>	
-			<div class="order_cat_filter">	
-				<form method="GET">	
-					<select class="order_cat_list" name="order_type">
-						<option value="food"> Food </option>
-						<option value="drinks"> Drinks </option>
-					</select>
-					<input type="submit" class="button" value="Apply">
-				</form>	
-			</div>
-	<?php	
+		$order_cat = isset( $_GET['order_type'] ) ? sanitize_text_field( $_GET['gateway'] ) : 'all';
+
+		$args = array(
+			'taxonomy' => 'food-category',
+			'orderby' => 'name',
+			'order'   => 'ASC'
+		);
+
+		$cats = get_categories($args);
+
+	  ?>
+		<form method="get">	
+			<input type="hidden" name="page" value="rpress-payment-history">
+			<select class="order_cat_list" name="order-type">
+				<option value="all" selected="selected"> All </option>
+				<?php foreach($cats as $cat) { ?>
+					<option value="<?php echo $cat->term_id; ?>"> <?php echo $cat->name; ?> </option>
+				<?php 	}	?>
+			</select>
+			<input type="submit" class="button" name="cat_submit" value="Apply">
+		</form>			
+	<?php
+
 	}
 }
-
-

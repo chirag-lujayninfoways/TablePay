@@ -351,7 +351,7 @@ add_action( 'rpress_weekly_scheduled_events', 'rpress_mark_abandoned_orders' );
 function rpress_update_payment_backwards_compat( $meta_id, $object_id, $meta_key, $meta_value ) {
 
 	$meta_keys = array( '_rpress_payment_meta', '_rpress_payment_tax' );
-
+	
 	if ( ! in_array( $meta_key, $meta_keys ) ) {
 		return;
 	}
@@ -498,6 +498,7 @@ function rpress_recover_payment() {
 	foreach ( $payment->cart_details as $key => $fooditem ) {
 
 		$fooditem['item_number']['options']['id'] = $fooditem['id'];
+
 
 		$fooditem['item_number']['options']['addon_items'] = $fooditem['item_number']['options'];
 

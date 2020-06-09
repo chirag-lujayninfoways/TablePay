@@ -93,7 +93,7 @@ class RPRESS_Payments_Query extends RPRESS_Stats {
 			'day'             => null,
 			's'               => null,
 			'search_in_notes' => false,
-			'children'        => false,
+			'children'        => false,	
 			'fields'          => null,
 			'fooditem'        => null,
 			'gateway'         => null,
