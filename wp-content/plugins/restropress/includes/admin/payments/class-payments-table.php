@@ -642,65 +642,74 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 		{
 			$catorder = $_GET['order-type']; 
 			global $wpdb;
-			$qry = $wpdb->get_results("SELECT * FROM `wp_term_relationships` WHERE `term_taxonomy_id`=".$catorder);
-			
-			foreach($qry as $q)
+			$foodId_qry = $wpdb->get_results("SELECT * FROM `wp_term_relationships` WHERE `term_taxonomy_id`=".$catorder);
+
+			foreach($foodId_qry as $q)
 			{
-				$qry1 = $wpdb->get_results("SELECT * FROM `wp_postmeta` WHERE `meta_key` = '_rpress_food_id' AND `meta_value` LIKE ".$q->object_id);
-				foreach($qry1 as $qid){
+				// echo $q->object_id."  ";
+				$order_qry = $wpdb->get_results("SELECT * FROM `wp_postmeta` WHERE `meta_key` = '_rpress_food_id' AND `meta_value` LIKE '%".$q->object_id."%'");
+	
+				// echo $wpdb->last_query;			
+				// print_r($order_qry);
+				foreach($order_qry as $qid){
 					$order_id[] .= $qid->post_id;
 				}
 			}
-			// print_r($obId);
+			// print_r($order_qry);
+			// echo "<pre>";
 			// print_r($order_id);
+			// echo "</pre>";
+			// exit;
+			// print_r($obId);
 			
 			$args  = array(
 				'output'     => 'payments',
 				'number'     => $per_page,
 				'page'       => isset( $_GET['paged'] ) ? $_GET['paged'] : null,
-				'orderby'    => $$order_id,
+				'orderby'    => $orderby,
 				'order'      => $order,
 				'user'       => $user,
 				'customer'   => $customer,
 				'status'     => $status,
 				'meta_key'   => $meta_key,
-			);	
+				'post__in'	 => $order_id
+			);		
 
-			$query = new WP_Query($args);
+			 $p_query  = new RPRESS_Payments_Query( $args );	
 			
-			echo "<pre>";
-			print_r($query);
-			echo "</pre>";
+			
+		}else{
+			$args = array(
+				'output'     => 'payments',
+				'number'     => $per_page,
+				'page'       => isset( $_GET['paged'] ) ? $_GET['paged'] : null,
+				'orderby'    => $orderby,
+				'order'      => $order,
+				'user'       => $user,
+				'customer'   => $customer,
+				'status'     => $status,
+				'meta_key'   => $meta_key,
+				'year'       => $year,
+				'month'      => $month,
+				'day'        => $day,
+				's'          => $search,
+				'start_date' => $start_date,
+				'end_date'   => $end_date,
+				'gateway'    => $gateway	
+			); 
+	
+			if( is_string( $search ) && false !== strpos( $search, 'txn:' ) ) {
+	
+				$args['search_in_notes'] = true;
+				$args['s'] = trim( str_replace( 'txn:', '', $args['s'] ) );
+	
+			}
+			$p_query  = new RPRESS_Payments_Query( $args );
 		}
 
-		$args = array(
-			'output'     => 'payments',
-			'number'     => $per_page,
-			'page'       => isset( $_GET['paged'] ) ? $_GET['paged'] : null,
-			'orderby'    => $orderby,
-			'order'      => $order,
-			'user'       => $user,
-			'customer'   => $customer,
-			'status'     => $status,
-			'meta_key'   => $meta_key,
-			'year'       => $year,
-			'month'      => $month,
-			'day'        => $day,
-			's'          => $search,
-			'start_date' => $start_date,
-			'end_date'   => $end_date,
-			'gateway'    => $gateway	
-		); 
-
-		if( is_string( $search ) && false !== strpos( $search, 'txn:' ) ) {
-
-			$args['search_in_notes'] = true;
-			$args['s'] = trim( str_replace( 'txn:', '', $args['s'] ) );
-
-		}
-
-		$p_query  = new RPRESS_Payments_Query( $args );
-
+		// print_r($p_query );
+		// print_r($p_query->get_payments());
+		
 		return $p_query->get_payments();
 
 	}
@@ -776,9 +785,9 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 		<form method="get">	
 			<input type="hidden" name="page" value="rpress-payment-history">
 			<select class="order_cat_list" name="order-type">
-				<option value="all" selected="selected"> All </option>
+				<option value="all"> All </option>
 				<?php foreach($cats as $cat) { ?>
-					<option value="<?php echo $cat->term_id; ?>"> <?php echo $cat->name; ?> </option>
+					<option value="<?php echo $cat->term_id;  ?>" <?php if($_GET['order-type'] == $cat->term_id) echo 'selected'; ?> > <?php echo $cat->name; ?> </option>
 				<?php 	}	?>
 			</select>
 			<input type="submit" class="button" name="cat_submit" value="Apply">
