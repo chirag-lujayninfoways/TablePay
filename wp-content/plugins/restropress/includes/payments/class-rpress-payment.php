@@ -1087,12 +1087,14 @@ class RPRESS_Payment {
 				foreach($food_list_id as $list):
 						$id[] .= $list['id'];
 				endforeach;
-				print_r($id);
-
+				//print_r($id);
 				$cat_id = implode(",", $id);
-			$this->update_meta( '_rpress_cat_id', $cat_id);
+				//SELECT * FROM `wp_term_relationships` WHERE `object_id` = 92
+				      
+				
+			$this->update_meta( '_rpress_food_id', $cat_id);
 
-				exit;
+
 
 			$new_meta = array(
 				'fooditems'     => $this->fooditems,

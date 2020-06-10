@@ -393,7 +393,7 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 
 		$customer_id = rpress_get_payment_customer_id( $payment->ID );
 		$customer_name = '';
-    $service_type = rpress_get_service_type( $payment->ID );
+	    $service_type = rpress_get_service_type( $payment->ID );
 
     if( ! empty( $customer_id ) ) {
       $customer    = new RPRESS_Customer( $customer_id );
@@ -640,7 +640,37 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 		
 		if(isset( $_GET['cat_submit'] ))
 		{
-			$catorder = $_GET['order-type'];
+			$catorder = $_GET['order-type']; 
+			global $wpdb;
+			$qry = $wpdb->get_results("SELECT * FROM `wp_term_relationships` WHERE `term_taxonomy_id`=".$catorder);
+			
+			foreach($qry as $q)
+			{
+				$qry1 = $wpdb->get_results("SELECT * FROM `wp_postmeta` WHERE `meta_key` = '_rpress_food_id' AND `meta_value` LIKE ".$q->object_id);
+				foreach($qry1 as $qid){
+					$order_id[] .= $qid->post_id;
+				}
+			}
+			// print_r($obId);
+			// print_r($order_id);
+			
+			$args  = array(
+				'output'     => 'payments',
+				'number'     => $per_page,
+				'page'       => isset( $_GET['paged'] ) ? $_GET['paged'] : null,
+				'orderby'    => $$order_id,
+				'order'      => $order,
+				'user'       => $user,
+				'customer'   => $customer,
+				'status'     => $status,
+				'meta_key'   => $meta_key,
+			);	
+
+			$query = new WP_Query($args);
+			
+			echo "<pre>";
+			print_r($query);
+			echo "</pre>";
 		}
 
 		$args = array(
