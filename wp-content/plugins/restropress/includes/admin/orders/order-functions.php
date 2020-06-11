@@ -1,9 +1,9 @@
 <?php
 function quick_view_order_details() {
+ $cat_id = $_GET['cat_id'];
   $order = rpress_get_payment( absint( $_GET['order_id'] ) );
-
   if ( $order ) {
-    $order_response = order_preview_get_order_details( $order );
+    $order_response = order_preview_get_order_details( $order ,$cat_id);
 
     wp_send_json_success( $order_response );
   }
@@ -13,7 +13,7 @@ function quick_view_order_details() {
 add_action( 'wp_ajax_rp_get_order_details', 'quick_view_order_details' );
 
 
-function order_preview_get_order_details( $payment ) {
+function order_preview_get_order_details( $payment , $cat_id ) {
 
   if ( ! $payment ) {
     return array();
@@ -67,7 +67,7 @@ function order_preview_get_order_details( $payment ) {
       'customer_email'            => $customer_email,
       'customer_details'          => $customer_details,
       'customer_billing_details'  => $user_info,
-      'item_html'                 => get_ordered_items( $payment ),
+      'item_html'                 => get_ordered_items( $payment, $cat_id ),
       'actions_html'              => get_order_preview_actions_html( $payment ),
       'formatted_billing_address' => $billing_address,
     ), $payment
@@ -81,11 +81,11 @@ function order_preview_get_order_details( $payment ) {
   * @since 1.0
   * @return mixed
   */
-  function get_ordered_items( $payment ) {
-
+  function get_ordered_items( $payment , $cat_id ) {
+   
     $order_items = $payment->cart_details;
-    $output = '';
-
+    $output = '';   
+   
     if ( is_array( $order_items ) &&  !empty( $order_items )  ) {
       ob_start();
       ?>
@@ -113,13 +113,32 @@ function order_preview_get_order_details( $payment ) {
           </thead>
           <tbody>
             <?php
+           
             foreach( $order_items as $fooditems ) :
+              /***
+               *  custom filter to hide non category food item value
+               */
+              if($cat_id != 'all'):
+                  global $wpdb;
+                  $foodItemId = $fooditems['id']; 
+                  $matchCatWithfoodID = $wpdb->get_results("SELECT * FROM `wp_term_relationships` WHERE  `object_id` = $foodItemId AND `term_taxonomy_id`=".$cat_id);
+                
+                  if(empty($matchCatWithfoodID)):
+                    $style = 'display:none;';
+                  else:
+                    $style = '';
+                  endif; 
+              endif; 
+              /***
+               *  End here
+               */
+
               $special_instruction = isset( $fooditems['instruction'] ) ? $fooditems['instruction'] : '';
               if ( isset( $fooditems['name'] ) ) :
                 $item_tax   = isset( $fooditems['tax'] ) ? $fooditems['tax'] : 0;
                 $price      = isset( $fooditems['price'] ) ? $fooditems['price'] : false;
               ?>
-            <tr class="rp-order-preview-table">
+            <tr class="rp-order-preview-table" style="<?php echo $style; ?>">
               <td class="rp-order-preview-table__column--product">
                 <?php echo $fooditems['name']; ?>
               </td>

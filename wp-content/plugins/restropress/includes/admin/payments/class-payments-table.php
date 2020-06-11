@@ -400,8 +400,18 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
       $customer_name = $customer->name;
     }
 
+	// custom filter for non category food item  - order page 
+	// get the category id add below link
+	$catId = $_GET['order-type'];
+	if(empty($catId))
+	{
+		$catId = "all";
+	}else{
+		$catId = $_GET['order-type'];
+	}
+
     $order_preview = '<a href="#" class="order-preview" data-order-id="' . absint( $payment->ID ) . '" title="' . esc_attr( __( 'Preview', 'restropress' ) ) . '"><span>' . esc_html( __( 'Preview', 'restropress' ) ) . '</span></a>
-      <a class="" href="' . add_query_arg( 'id', $payment->ID, admin_url( 'admin.php?page=rpress-payment-history&view=view-order-details' ) ) . '">#' . $payment->ID . ' ' . $customer_name . '</a><span class="rp-service-type badge-' . $service_type . ' ">' . rpress_service_label( $service_type ) . '</span>';
+      <a class="" href="' . add_query_arg( array('id' => $payment->ID, 'cat_id' => $catId ) , admin_url( 'admin.php?page=rpress-payment-history&view=view-order-details' ) ) . '">#' . $payment->ID . ' ' . $customer_name . '</a><span class="rp-service-type badge-' . $service_type . ' ">' . rpress_service_label( $service_type ) . '</span>';
 
     return $order_preview;
 	}
@@ -637,7 +647,8 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 		if ( $catorder === 'all' ) {
 			$catorder = null;
 		}
-		
+
+		//  Filter all admin Order according to category
 		if(isset( $_GET['cat_submit'] ))
 		{
 			$catorder = $_GET['order-type']; 
@@ -648,20 +659,14 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 			{
 				// echo $q->object_id."  ";
 				$order_qry = $wpdb->get_results("SELECT * FROM `wp_postmeta` WHERE `meta_key` = '_rpress_food_id' AND `meta_value` LIKE '%".$q->object_id."%'");
-	
-				// echo $wpdb->last_query;			
-				// print_r($order_qry);
+				
+				// if($q->object_id ==  )
+
 				foreach($order_qry as $qid){
 					$order_id[] .= $qid->post_id;
 				}
 			}
-			// print_r($order_qry);
-			// echo "<pre>";
-			// print_r($order_id);
-			// echo "</pre>";
-			// exit;
-			// print_r($obId);
-			
+			 
 			$args  = array(
 				'output'     => 'payments',
 				'number'     => $per_page,
@@ -675,8 +680,7 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 				'post__in'	 => $order_id
 			);		
 
-			 $p_query  = new RPRESS_Payments_Query( $args );	
-			
+			 $p_query  = new RPRESS_Payments_Query( $args );			
 			
 		}else{
 			$args = array(
@@ -771,7 +775,7 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 
 	public function order_filter_form()
 	{
-		$order_cat = isset( $_GET['order_type'] ) ? sanitize_text_field( $_GET['gateway'] ) : 'all';
+		$order_cat = isset( $_GET['order_type'] ) ? sanitize_text_field( $_GET['order_type'] ) : 'all';
 
 		$args = array(
 			'taxonomy' => 'food-category',
@@ -784,7 +788,7 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 	  ?>
 		<form method="get">	
 			<input type="hidden" name="page" value="rpress-payment-history">
-			<select class="order_cat_list" name="order-type">
+			<select class="order_cat_list" id="order_filter_cat_list" name="order-type">
 				<option value="all"> All </option>
 				<?php foreach($cats as $cat) { ?>
 					<option value="<?php echo $cat->term_id;  ?>" <?php if($_GET['order-type'] == $cat->term_id) echo 'selected'; ?> > <?php echo $cat->name; ?> </option>

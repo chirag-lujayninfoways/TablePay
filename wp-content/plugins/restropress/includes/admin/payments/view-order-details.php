@@ -497,8 +497,23 @@ $order_note 		= $payment->get_meta( '_rpress_order_note' );
 									<?php
 									$i = 0;
 									foreach ( $cart_items as $key => $cart_item ) :
+										// custom for hide non category value food item 
+										global $wpdb;
+										$foodItemId = $cart_item['id'];
+										$catId = $_GET['cat_id'];
+										if($catId != "all")
+										{
+											$matchCatWithFoodId = $wpdb->get_results("SELECT * FROM `wp_term_relationships` WHERE  `object_id` = $foodItemId AND `term_taxonomy_id` =".$catId);
+											if(empty($matchCatWithFoodId)):
+												$style = "display:none";
+											else:
+												$style = "";
+											endif;													
+										}
+										// End custom
+
 									 ?>
-										<div class="row">
+										<div class="row" style="<?php echo $style; ?>">
 											<ul class="rpress-purchased-items-list-wrapper">
 												<?php
 

@@ -44,9 +44,7 @@ function rpress_payment_history_page() {
 			<?php $payments_table->advanced_filters(); ?>
 			<?php $payments_table->display() ?>
 		</form>
-	
 		<?php $payments_table->order_filter_form(); ?>	
-	
 		<?php do_action( 'rpress_payments_page_bottom' ); ?>
 	</div>
 <?php

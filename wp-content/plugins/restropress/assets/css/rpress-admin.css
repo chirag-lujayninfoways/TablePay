@@ -2911,3 +2911,34 @@ select.rp_payment_current_status.processing, #rpress-payments-filter span.proces
   background-color: #e0f0d7;
   color: #3a773a;
 }
+
+
+/* css for hide option on admin order view page */
+
+.rpress-order-payment-key.rpress-admin-box-inside {
+    display: none;
+}
+
+.rpress-order-ip.rpress-admin-box-inside {
+    display: none;
+}
+
+div#rpress-billing-details {
+    display: none;
+}
+
+.rpress-add-fooditem-to-purchase-header.row.header {
+    display: none;
+}
+
+.rpress-add-fooditem-to-purchase.inside {
+    display: none;
+}
+
+p.search-box {
+    display: none;
+}
+
+span#rpress-payment-gateway-filter {
+    display: none;
+}
