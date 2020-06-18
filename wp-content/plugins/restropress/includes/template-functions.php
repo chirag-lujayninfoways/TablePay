@@ -174,10 +174,17 @@ function rpress_get_purchase_link( $args = array() ) {
 
 	ob_start();
 ?>
-	<form id="<?php echo $form_id; ?>" class="rpress_fooditem_purchase_form rpress_purchase_<?php echo absint( $fooditem->ID ); ?>" method="post">
+
+	<form class="foodItem" id="<?php echo $form_id; ?>" class="rpress_fooditem_purchase_form rpress_purchase_<?php echo absint( $fooditem->ID ); ?>" method="post">
+		
+		<div class="rp-row-md-4 rp-row-sm-4 btn-count qty_main_wrapper">
+			<input type="button" value="&#8722;" class="qty_minus">
+			<input type="text" name="newquantity" value="1" class="outqty qty-style" readonly="readonly">
+			<input type="button" value="&#43;" class="qty_plus">
+		</div>  
 
 		<?php do_action( 'rpress_purchase_link_top', $fooditem->ID, $args ); ?>
-
+		  
 		<div class="rpress_purchase_submit_wrapper">
 			<?php
 			$class = implode( ' ', array( $args['style'], $args['color'], trim( $args['class'] ) ) );
@@ -189,7 +196,7 @@ function rpress_get_purchase_link( $args = array() ) {
 					$add_to_cart_label = apply_filters( 'rpress_add_to_cart_text', 
 					__( 'ADD', 'restropress' ) );
 
-					echo '<a href="#" data-title="'.get_the_title( $fooditem->ID ).'" class="rpress-add-to-cart ' . esc_attr( $class ) . '" data-action="rpress_add_to_cart" data-fooditem-id="' . esc_attr( $fooditem->ID ) . '" ' . $data_variable . ' ' . $type . ' ' . $data_price . ' ' . $button_display . '><span class="rpress-add-to-cart-label">' . $add_to_cart_label . '</span> </a>';
+					echo '<a href="#" data-title="'.get_the_title( $fooditem->ID ).'" data-item-qty="1" class="rpress-add-to-cart ' . esc_attr( $class ) . '" data-action="rpress_add_to_cart" data-fooditem-id="' . esc_attr( $fooditem->ID ) . '" ' . $data_variable . ' ' . $type . ' ' . $data_price . ' ' . $button_display . '><span class="rpress-add-to-cart-label">' . $add_to_cart_label . '</span> </a>';
 				}
 				?>
 

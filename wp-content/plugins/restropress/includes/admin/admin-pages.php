@@ -45,9 +45,9 @@ class RP_Admin_Menus {
 		$rpress_payment 	= get_post_type_object( 'rpress_payment' );
 		$customer_view_role = apply_filters( 'rpress_view_customers_role', 'view_shop_reports' );
 
-		add_menu_page( __( 'RestroPress', 'restropress' ), __( 'RestroPress', 'restropress' ), 'manage_shop_settings', 'restropress', null, null, '55.5' );
+		add_menu_page( __( 'RestroPress', 'restropress' ), __( 'TablePay', 'restropress' ), 'manage_shop_settings', 'restropress', null, null, '55.5' );
 
-		add_submenu_page( 'restropress', $rpress_payment->labels->name, $rpress_payment->labels->menu_name, 'edit_shop_payments', 'rpress-payment-history', 'rpress_payment_history_page', null , null );
+		add_submenu_page( 'restropress', $rpress_payment->labels->name, $rpress_payment->labels->menu_name, 'edit_shop_payments', 'rpress-payment-history', 'rpress_payment_history_page', null , null );		
 
 		add_submenu_page( 'restropress', __( 'Customers', 'restropress' ), __( 'Customers', 'restropress' ), $customer_view_role, 'rpress-customers', 'rpress_customers_page', null, null );
 

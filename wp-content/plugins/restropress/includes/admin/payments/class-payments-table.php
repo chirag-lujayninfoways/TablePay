@@ -790,9 +790,11 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 			<input type="hidden" name="page" value="rpress-payment-history">
 			<select class="order_cat_list" id="order_filter_cat_list" name="order-type">
 				<option value="all"> All </option>
-				<?php foreach($cats as $cat) { ?>
+				<?php foreach($cats as $cat) {  
+						if($cat->slug == "drinks" or $cat->slug == "food") {
+				?>
 					<option value="<?php echo $cat->term_id;  ?>" <?php if($_GET['order-type'] == $cat->term_id) echo 'selected'; ?> > <?php echo $cat->name; ?> </option>
-				<?php 	}	?>
+				<?php   }	} ?>
 			</select>
 			<input type="submit" class="button" name="cat_submit" value="Apply">
 		</form>			

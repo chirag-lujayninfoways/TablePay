@@ -765,3 +765,31 @@ function remove_menu()
 {
 	remove_menu_page('edit-comments.php');	
 }
+
+// shortcode for display sub-categories.
+add_shortcode('food_categories','shortcode_fooditem_categories');
+function shortcode_fooditem_categories()
+{
+	$taxonomy = 'food-category';
+    $postType = 'fooditem';
+    $terms = get_terms(['taxonomy' => $taxonomy, 'orderby' => 'term_id', 'parent' => 0, 'hide_empty' => false]);
+
+	$categories = "";
+
+	$categories .= "<ul class='food_category'>";
+	foreach($terms as $term) {
+        $childTerms = get_terms(['taxonomy' => $taxonomy, 'orderby' => 'term_id', 'parent' => $term->term_id, 'hide_empty' => false]);
+
+        foreach($childTerms as $childTerm)
+        {
+			if($term->slug == "food")
+			{
+				$categories .="<li><a href='#$childTerm->slug' data-id='.$childTerm->term_id.' class='rpress-category-link  nav-scroller-item red'>".$childTerm->name."</a></li>";
+			}
+		}
+	}					
+	$categories .= "</ul>";
+	return $categories;
+} 
+
+

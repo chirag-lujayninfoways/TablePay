@@ -7,12 +7,12 @@ jQuery(document).ready(function($) {
 
   //Triggers when the add button is clicked.
   $('.rpress-add-to-cart').click(function(e) {
-
     e.preventDefault();
+
     var $this   = $(this);
     var item_id = $this.attr('data-fooditem-id');
     var price   = $this.attr('data-price');
-
+  
     // if ( typeof Cookies.get('service_type') == 'undefined' ){
     //   rpress_display_service_options( item_id );
     //   return true;
@@ -23,6 +23,9 @@ jQuery(document).ready(function($) {
         fooditem_id:    item_id,
         fooditem_price: price,
     };
+
+    var qty = $("#rpress_purchase_"+item_id+" input[name='newquantity']").val();
+    $('#rpressModal .qty').val(qty); 
 
     $('#rpressModal').removeClass('rpress-delivery-options').addClass( 'rpress-food-options' );
     $.fancybox.open({
@@ -51,12 +54,14 @@ jQuery(document).ready(function($) {
         $('#rpressModal .modal-body').html(response.data.html);
         $('#rpressModal .modal-body').prepend("<div class='fooditem-description'>"+response.data.fooditem_description+"</div>");
         $('#rpressModal .rpress-prices').html(response.data.food_price);
+    
+        // console.log(update_qty);
 
         if (item_id !== '' && price !== '') {
           $('#rpressModal').find('.submit-fooditem-button').attr({
             'data-item-id': item_id,
             'data-item-price': price,
-            'data-item-qty': 1,
+            'data-item-qty': qty,
           });
         }
 
@@ -66,7 +71,7 @@ jQuery(document).ready(function($) {
         .addClass('add-cart')
         .text(rpress_scripts.add_to_cart);
 
-        $('#rpressModal .qty').val(1);
+
         $('#rpressModal').modal('show');
       }
     });

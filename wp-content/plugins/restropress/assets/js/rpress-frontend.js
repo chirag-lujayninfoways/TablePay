@@ -1,6 +1,7 @@
 jQuery(function($) {
 
   $( document.body ).on( "click", ".add-cart", function() {
+    
       var Selected = $(this);
       Selected.addClass('disable_click');
       var Form = $(this).parents('.rpress-food-options').find('form#fooditem-details');
@@ -288,10 +289,10 @@ jQuery(function($) {
 
     // Get the field name
     fieldName = 'quantity';
-
+   
     // Get its current value
     var currentVal = parseInt($('input[name='+fieldName+']').val());
-
+   
     // If it isn't undefined or its greater than 0
     if (!isNaN(currentVal) && currentVal > 1) {
 
@@ -333,7 +334,66 @@ jQuery(function($) {
       $(this).parents('div.modal-footer').find('a.submit-fooditem-button').attr('data-item-qty', liveQtyVal);
 
     });
+    $( document.body ).on('click', '.qty_plus', function(e) {
+        // Stop acting like a button
+        e.preventDefault();
+        
+        // Get the field name
+        fieldName = 'newquantity';
+    
+        var currentVal = parseInt($(this).siblings('input[name='+fieldName+']').val());
 
+        // If is not undefined
+        if (!isNaN(currentVal)) {
+          $(this).siblings('input[name='+fieldName+']').val(currentVal + 1);
+          $('input[name='+fieldName+']').addClass('updateqty');
+          liveQtyVal = currentVal + 1;
+          // $('.qtyminus').removeAttr('style');
+          // console.log("plus"+liveQtyVal);
+        } else {
+          // Otherwise put a 0 there
+          $(this).siblings('input[name='+fieldName+']').val(1);
+          liveQtyVal = 1;
+        }
+       $(".rpress-add-to-cart.button.red.rpress-submit").attr('data-item-qty',liveQtyVal);
+      //  $(this).parents('div.modal-footer').find('a.submit-fooditem-button').attr('data-item-qty', liveQtyVal);
+      //   $(this).parents('div.modal-footer').find('a.submit-fooditem-button').attr('data-item-qty', liveQtyVal);
+    });
+
+    $( document.body ).on('click', '.qty_minus', function(e) {
+      // Stop acting like a button
+      e.preventDefault();
+  
+      // Get the field nameT
+      fieldName = 'newquantity';
+  
+      // Get its current value
+      var currentVal = parseInt($(this).siblings('input[name='+fieldName+']').val());
+
+      // If it isn't undefined or its greater than 0
+      if (!isNaN(currentVal) && currentVal > 1) {
+  
+      // Decrement one only if value is > 1
+      $(this).siblings('input[name='+fieldName+']').val(currentVal - 1);
+      
+      $('input[name='+fieldName+']').addClass('updateqty');
+      
+      //$(this).siblings(".outqty").addClass("updateqty");
+      liveQtyVal = currentVal - 1;
+
+      }
+      else {
+        // Otherwise put a 0 there
+        $(this).siblings('input[name='+fieldName+']').val(1);
+        $(this).siblings(".outqty").removeClass("updateqty");
+        liveQtyVal = 1;
+        // $('.qtyminus').css('color','#aaa').css('cursor','not-allowed');
+      }
+      $(".rpress-add-to-cart.button.red.rpress-submit").attr('data-item-qty',liveQtyVal);
+//      $(this).parents('div.modal-footer').find('a.submit-fooditem-button').attr('data-item-qty', liveQtyVal);
+      // $(this).parents('div.modal-footer').find('a.submit-fooditem-button').attr('data-item-qty', liveQtyVal);
+  
+    });
   //Show Image on Modal
   $(".rpress-thumbnail-popup").fancybox({
     openEffect  : 'elastic',
@@ -489,6 +549,4 @@ jQuery(function($) {
   $( ".close-cart-ic" ).click(function(){
     $( ".rpress-sidebar-main-wrap" ).css( "left", "100%" );
   });
-
-
 });
