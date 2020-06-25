@@ -44,7 +44,7 @@ function rpress_payment_history_page() {
 			<?php $payments_table->advanced_filters(); ?>
 			<?php $payments_table->display() ?>
 		</form>
-		<?php $payments_table->order_filter_form(); ?>	
+		<?php // $payments_table->order_filter_form(); ?>	
 		<?php do_action( 'rpress_payments_page_bottom' ); ?>
 	</div>
 <?php
@@ -109,5 +109,4 @@ function rpress_override_edit_post_for_payment_link( $url, $post_id = 0, $contex
 	return $url;
 }
 add_filter( 'get_edit_post_link', 'rpress_override_edit_post_for_payment_link', 10, 3 );
-
 

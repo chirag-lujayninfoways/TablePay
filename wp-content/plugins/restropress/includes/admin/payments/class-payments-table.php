@@ -107,6 +107,14 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 
 	public function advanced_filters() {
 
+		$args = array(
+			'taxonomy' => 'food-category',
+			'orderby' => 'name',
+			'order'   => 'ASC'
+		);
+	
+		$cats = get_categories($args);
+
 		$start_date = isset( $_GET['start-date'] )  ? sanitize_text_field( $_GET['start-date'] ) : null;
 		$end_date   = isset( $_GET['end-date'] )    ? sanitize_text_field( $_GET['end-date'] )   : null;
 		$status     = isset( $_GET['status'] )      ? $_GET['status'] : '';
@@ -114,6 +122,7 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 		$all_gateways     = rpress_get_payment_gateways();
 		$gateways         = array();
 		$selected_gateway = isset( $_GET['gateway'] ) ? sanitize_text_field( $_GET['gateway'] ) : 'all';
+		$selected_foodcat = isset( $_GET['order-type'] ) ? sanitize_text_field( $_GET['order-type'] ) : 'all';
 
 		if ( ! empty( $all_gateways ) ) {
 			$gateways['all'] = __( 'All Gateways', 'restropress' );
@@ -141,6 +150,16 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 					<input type="text" id="end-date" name="end-date" class="rpress_datepicker" value="<?php echo $end_date; ?>" placeholder="mm/dd/yyyy"/>
 				</span>
 			</span>
+			<span id="rpress-payment-food-filter">
+				<select class="order_cat_list" id="order_filter_cat_list" name="order-type">
+					<option value="all"> All </option>
+					<?php foreach($cats as $cat) {
+						if($cat->slug == "drinks" or $cat->slug == "food") {
+					?>
+						<option value="<?php echo $cat->term_id;  ?>" <?php if($_GET['order-type'] == $cat->term_id) echo 'selected'; ?> > <?php echo $cat->name; ?> </option>
+					<?php } } ?>
+				</select>
+			</span>
 			<span id="rpress-payment-gateway-filter">
 				<?php
 				if ( ! empty( $gateways ) ) {
@@ -162,7 +181,7 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 			<?php if( ! empty( $status ) ) : ?>
 				<input type="hidden" name="status" value="<?php echo esc_attr( $status ); ?>"/>
 			<?php endif; ?>
-			<?php if( ! empty( $start_date ) || ! empty( $end_date ) || 'all' !== $selected_gateway ) : ?>
+			<?php if( ! empty( $start_date ) || ! empty( $end_date ) || 'all' !== $selected_gateway || 'all' !== $selected_foodcat ) : ?>
 				<a href="<?php echo admin_url( 'admin.php?page=rpress-payment-history' ); ?>" class="button-secondary"><?php _e( 'Clear Filter', 'restropress' ); ?></a>
 			<?php endif; ?>
 			<?php do_action( 'rpress_payment_advanced_filters_row' ); ?>
@@ -399,19 +418,13 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
       $customer    = new RPRESS_Customer( $customer_id );
       $customer_name = $customer->name;
     }
+       // custom filter for non category food item - order page
+       // get the category id add below link
+	  $catID = $_GET['order-type']; 
+	  if($catID == ""){ $catID ='all'; }
 
-	// custom filter for non category food item  - order page 
-	// get the category id add below link
-	$catId = $_GET['order-type'];
-	if(empty($catId))
-	{
-		$catId = "all";
-	}else{
-		$catId = $_GET['order-type'];
-	}
-
-    $order_preview = '<a href="#" class="order-preview" data-order-id="' . absint( $payment->ID ) . '" title="' . esc_attr( __( 'Preview', 'restropress' ) ) . '"><span>' . esc_html( __( 'Preview', 'restropress' ) ) . '</span></a>
-      <a class="" href="' . add_query_arg( array('id' => $payment->ID, 'cat_id' => $catId ) , admin_url( 'admin.php?page=rpress-payment-history&view=view-order-details' ) ) . '">#' . $payment->ID . ' ' . $customer_name . '</a><span class="rp-service-type badge-' . $service_type . ' ">' . rpress_service_label( $service_type ) . '</span>';
+        $order_preview = '<a href="#" class="order-preview" data-order-id="' . absint( $payment->ID ) . '" title="' . esc_attr( __( 'Preview', 'restropress' ) ) . '"><span>' . esc_html( __( 'Preview', 'restropress' ) ) . '</span></a>
+      <a class="" href="' . add_query_arg( array('id' => $payment->ID, 'cat_id' => $catID ) , admin_url( 'admin.php?page=rpress-payment-history&view=view-order-details' ) ) . '">#' . $payment->ID . ' ' . $customer_name . '</a><span class="rp-service-type badge-' . $service_type . ' ">' . rpress_service_label( $service_type ) . '</span>';
 
     return $order_preview;
 	}
@@ -648,20 +661,30 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 			$catorder = null;
 		}
 
+		// $catorder = $_GET['order-type']; 
+			global $wpdb;
+			$foodId_qry = $wpdb->get_results("SELECT * FROM `wp_term_relationships` WHERE `term_taxonomy_id`=".$catorder);
+		// print_r($foodId_qry);
+			foreach($foodId_qry as $q)
+			{
+				$order_qry = $wpdb->get_results("SELECT * FROM `wp_postmeta` WHERE `meta_key` = '_rpress_food_id' AND `meta_value` LIKE '%".$q->object_id."%'");
+				
+				foreach($order_qry as $qid){
+				  	$order_id[] .= $qid->post_id." ";
+				}
+			}
+
 		//  Filter all admin Order according to category
-		if(isset( $_GET['cat_submit'] ))
+	/*	if(isset( $_GET['cat_submit'] ))
 		{
 			$catorder = $_GET['order-type']; 
 			global $wpdb;
 			$foodId_qry = $wpdb->get_results("SELECT * FROM `wp_term_relationships` WHERE `term_taxonomy_id`=".$catorder);
-
+			//print_r($foodId_qry);
 			foreach($foodId_qry as $q)
 			{
-				// echo $q->object_id."  ";
 				$order_qry = $wpdb->get_results("SELECT * FROM `wp_postmeta` WHERE `meta_key` = '_rpress_food_id' AND `meta_value` LIKE '%".$q->object_id."%'");
 				
-				// if($q->object_id ==  )
-
 				foreach($order_qry as $qid){
 					$order_id[] .= $qid->post_id;
 				}
@@ -676,13 +699,15 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 				'user'       => $user,
 				'customer'   => $customer,
 				'status'     => $status,
+				'start_date' => $start_date,
+				'end_date'   => $end_date,
 				'meta_key'   => $meta_key,
 				'post__in'	 => $order_id
 			);		
 
 			 $p_query  = new RPRESS_Payments_Query( $args );			
 			
-		}else{
+		}else{ */ 
 			$args = array(
 				'output'     => 'payments',
 				'number'     => $per_page,
@@ -699,7 +724,8 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 				's'          => $search,
 				'start_date' => $start_date,
 				'end_date'   => $end_date,
-				'gateway'    => $gateway	
+				'gateway'    => $gateway,
+				'post__in'	 => $order_id
 			); 
 	
 			if( is_string( $search ) && false !== strpos( $search, 'txn:' ) ) {
@@ -709,7 +735,7 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 	
 			}
 			$p_query  = new RPRESS_Payments_Query( $args );
-		}
+		//}
 
 		// print_r($p_query );
 		// print_r($p_query->get_payments());
@@ -784,21 +810,21 @@ class RPRESS_Payment_History_Table extends WP_List_Table {
 		);
 
 		$cats = get_categories($args);
-
 	  ?>
 		<form method="get">	
 			<input type="hidden" name="page" value="rpress-payment-history">
 			<select class="order_cat_list" id="order_filter_cat_list" name="order-type">
 				<option value="all"> All </option>
-				<?php foreach($cats as $cat) {  
-						if($cat->slug == "drinks" or $cat->slug == "food") {
+				<?php foreach($cats as $cat) {
+  
+					if($cat->slug == "drinks" or $cat->slug == "food") {
 				?>
 					<option value="<?php echo $cat->term_id;  ?>" <?php if($_GET['order-type'] == $cat->term_id) echo 'selected'; ?> > <?php echo $cat->name; ?> </option>
-				<?php   }	} ?>
+				<?php   } } ?>
 			</select>
 			<input type="submit" class="button" name="cat_submit" value="Apply">
 		</form>			
 	<?php
 
-	}
+	} 
 }

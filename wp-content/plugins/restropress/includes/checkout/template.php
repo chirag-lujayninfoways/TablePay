@@ -146,7 +146,7 @@ add_action( 'rpress_purchase_form', 'rpress_show_purchase_form' );
 
 function rpress_show_cc_form() {
 
-	$payment_mode = rpress_get_chosen_gateway();
+  $payment_mode = rpress_get_chosen_gateway();
 
 	/**
 	 * Hooks in before Credit Card Form
@@ -159,6 +159,7 @@ function rpress_show_cc_form() {
 
 		// Load the credit card form and allow gateways to load their own if they wish
 		if ( has_action( 'rpress_' . $payment_mode . '_cc_form' ) ) {
+			
 			do_action( 'rpress_' . $payment_mode . '_cc_form' );
 		} else {
 			do_action( 'rpress_cc_form' );
@@ -323,6 +324,7 @@ add_action( 'rpress_register_fields_after', 'rpress_order_details_fields' );
  * @return void
  */
 function rpress_get_cc_form() {
+	echo "temp";
 	ob_start(); ?>
 
 	<?php do_action( 'rpress_before_cc_fields' ); ?>
@@ -1037,3 +1039,4 @@ function rpress_filter_success_page_content( $content ) {
 	return $content;
 }
 add_filter( 'the_content', 'rpress_filter_success_page_content', 99999 );
+

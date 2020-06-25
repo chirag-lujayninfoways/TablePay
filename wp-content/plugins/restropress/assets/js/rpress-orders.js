@@ -48,7 +48,7 @@ jQuery( function( $ ) {
   RPOrdersTable.prototype.onPreview = function() {
     var $previewButton    = $( this ),
       $order_id         = $previewButton.data( 'order-id' );
-    var $Cat_id = $('select.order_cat_list').children("option:selected").val();
+    var $cat_id = $('select.order_cat_list').children("option:selected").val();
     if ( $previewButton.data( 'order-data' ) ) {
       $( this ).RPBackboneModal({
         template: 'rp-modal-view-order',
@@ -61,7 +61,7 @@ jQuery( function( $ ) {
         url:     rp_orders_params.ajax_url,
         data:    {
           order_id: $order_id,
-          cat_id  : $Cat_id,
+          cat_id:$cat_id,
           action  : 'rp_get_order_details',
           security: rp_orders_params.preview_nonce
         },

@@ -792,4 +792,87 @@ function shortcode_fooditem_categories()
 	return $categories;
 } 
 
+//add_action('rpress_purchase_form_user_info_fields','add_extra_restropress_checkout_field');
+function add_extra_restropress_checkout_field()
+{?>
+	<p id="rpress-table-wrap" class="rp-col-md-6 rp-col-sm-12">
+      <input class="rpress-input required" type="text" name="rpress_table" id="rpress-phone" value="<?php echo esc_attr( $customer['table'] ); ?>" placeholder="<?php esc_html_e('Table No.*', 'restropress'); ?>" maxlength="8" required />
+    </p>
+<?php 	
+}
 
+function rpress_user_info_fields_1() {
+		$customer = RPRESS()->session->get( 'customer' );
+		$customer = wp_parse_args( $customer, array( 'first_name' => '', 'last_name' => '', 'email' => '', 'phone'	=> '', 'table_no' => '' ) );
+	
+		if( is_user_logged_in() ) {
+			$user_data = get_userdata( get_current_user_id() );
+			foreach( $customer as $key => $field ) {
+	
+				if ( 'email' == $key && empty( $field ) ) {
+					$customer[ $key ] = $user_data->user_email;
+				} elseif ( empty( $field ) ) {
+					$customer[ $key ] = $user_data->$key;
+				}
+	
+			}
+			$customer['phone']	= get_user_meta( get_current_user_id(), '_rpress_phone', true );
+			$customer['table_no']	= get_user_meta( get_current_user_id(), '_rpress_table_no', true );
+		}
+		$customer = array_map( 'sanitize_text_field', $customer );
+		?>
+		<fieldset id="rpress_checkout_user_info">
+			<legend><?php echo apply_filters( 'rpress_checkout_personal_info_text', esc_html__( 'Personal Information', 'restropress' ) ); ?></legend>
+			<p id="rpress-table-wrap" class="rp-col-md-6 rp-col-sm-12">
+				<input class="rpress-input required" type="text" name="rpress_table_no" id="rpress-table-no" value="<?php echo esc_attr( $customer['table_no'] ); ?>" placeholder="<?php esc_html_e('Table No.*', 'restropress'); ?>" maxlength="8" required />
+			</p>
+			<p id="rpress-phone-wrap" class="rp-col-md-6 rp-col-sm-12">
+				<!-- <label class="rpress-label" for="rpress-phone"><?php //esc_html_e('Phone Number', 'restropress'); ?><span class="rpress-required-indicator">*</span></label> -->
+				<input class="rpress-input required" type="text" name="rpress_phone" id="rpress-phone" value="<?php echo esc_attr( $customer['phone'] ); ?>" placeholder="<?php esc_html_e('Phone No.*', 'restropress'); ?>" maxlength="16" required />
+			</p>
+			<p id="rpress-first-name-wrap" class="rp-row-md-12 rp-row-sm-12">
+				<!-- <label class="rpress-label" for="rpress-first">
+					<?php // esc_html_e( 'First Name', 'restropress' ); ?>
+					<?php /* if( rpress_field_is_required( 'rpress_first' ) ) { ?>
+						<span class="rpress-required-indicator">*</span>
+					<?php } */ ?>
+				</label> -->
+				<input class="rpress-input required" type="text" name="rpress_first" placeholder="<?php esc_html_e( 'Name*', 'restropress' ); ?>" id="rpress-first" value="<?php echo esc_attr( $customer['first_name'] ); ?>"<?php if( rpress_field_is_required( 'rpress_first' ) ) {  echo ' required '; } ?> aria-describedby="rpress-first-description" />
+			</p>
+			<!-- <p id="rpress-last-name-wrap" class="rp-col-md-6 rp-col-sm-12">
+				<label class="rpress-label" for="rpress-last">
+					<?php /* esc_html_e( 'Last Name', 'restropress' ); ?>
+					<?php if( rpress_field_is_required( 'rpress_last' ) ) { ?>
+						<span class="rpress-required-indicator">*</span>
+					<?php } */ ?>
+				</label>
+				<input class="rpress-input<?php //if( rpress_field_is_required( 'rpress_last' ) ) { echo ' required'; } ?>" type="text" name="rpress_last" id="rpress-last" placeholder="<?php // esc_html_e( 'Last Name', 'restropress' ); ?>" value="<?php //echo esc_attr( $customer['last_name'] ); ?>"<?php // if( rpress_field_is_required( 'rpress_last' ) ) {  echo ' required '; } ?> aria-describedby="rpress-last-description"/>
+			</p> -->
+			<?php do_action( 'rpress_purchase_form_before_email' ); ?>
+			<p id="rpress-email-wrap" class="rp-row-md-12 rp-row-sm-12">
+				<!-- <label class="rpress-label" for="rpress-email">
+					<?php /* esc_html_e( 'Email Address', 'restropress' ); ?>
+					<?php if( rpress_field_is_required( 'rpress_email' ) ) { ?>
+						<span class="rpress-required-indicator">*</span>
+					<?php } */ ?>
+				</label> -->
+				<input class="rpress-input required" type="email" name="rpress_email" placeholder="<?php esc_html_e( 'Email Address*', 'restropress' ); ?>" id="rpress-email" value="<?php echo esc_attr( $customer['email'] ); ?>" aria-describedby="rpress-email-description"<?php if( rpress_field_is_required( 'rpress_email' ) ) {  echo ' required '; } ?>/>
+			</p>
+			<?php do_action( 'rpress_purchase_form_after_email' ); ?>
+			<?php do_action( 'rpress_purchase_form_user_info' ); ?>
+			<?php do_action( 'rpress_purchase_form_user_info_fields' ); ?>
+		</fieldset>
+		<?php
+	}
+// remove and add hook again with new function on checkout page fields
+remove_action( 'rpress_purchase_form_after_user_info', 'rpress_user_info_fields', 10 );
+remove_action( 'rpress_register_fields_before', 'rpress_user_info_fields' );
+add_action( 'rpress_purchase_form_after_user_info', 'rpress_user_info_fields_1', 10 );
+add_action( 'rpress_register_fields_before', 'rpress_user_info_fields_1' );
+
+// remove hook of order details on checkout page
+remove_action( 'rpress_purchase_form_after_user_info', 'rpress_order_details_fields', 11 );
+remove_action( 'rpress_register_fields_after', 'rpress_order_details_fields' );
+
+// remove hook of Tax Billing details on checkout page
+remove_action( 'rpress_purchase_form_after_cc_form', 'rpress_checkout_tax_fields', 999 );
