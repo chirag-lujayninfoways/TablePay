@@ -9,6 +9,7 @@ $get_child_terms = array();
 
 if ( $data['category_menu'] ) {
   $get_all_items = rpress_get_child_cats( $data['ids'] );
+
 }
 else {
   $get_all_items = rpress_get_categories( $data );

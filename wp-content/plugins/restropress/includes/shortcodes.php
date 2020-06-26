@@ -262,29 +262,28 @@ function rpress_fooditems_query( $atts, $content = null ) {
       $categories = explode( ',', $atts['category'] );
     }
 
-
     if ( $atts['category_menu'] ) {
       $categories = explode( ',', $atts['category_menu'] );
     }
 
     foreach( $categories as $category ) {
-
       $is_id = is_int( $category ) && ! empty( $category );
 
       if ( $is_id ) {
-
-        $term_id = $category;
-
+         $term_id = $category;
       } 
       else {
 
         $term = get_term_by( 'slug', $category, 'food-category' );
+
+        print_r($term);
 
         if( ! $term ) {
           continue;
         }
 
         $term_id = $term->term_id;
+
         
         }
 
@@ -299,7 +298,7 @@ function rpress_fooditems_query( $atts, $content = null ) {
       'category_menu'   => !empty( $atts['category_menu'] ) ? true : false, 
     );
 
-    ob_start();
+   ob_start();
 
     rpress_get_template_part( 'rpress', 'before-fooditem' );
 
@@ -333,6 +332,10 @@ function rpress_fooditems_query( $atts, $content = null ) {
 
       $fooditems = new WP_Query( $query );
 
+      // echo "<pre>";
+      // print_r($fooditems);
+      // echo "</pre>";
+
       // Allow the query to be manipulated by other plugins
       $query = apply_filters( 'rpress_fooditems_query', $query, $atts );
       
@@ -354,6 +357,8 @@ function rpress_fooditems_query( $atts, $content = null ) {
           $id = get_the_ID();
 
           do_action( 'rpress_fooditems_category_title',  $id, $var, $atts );
+
+//          print_r($atts);
 
           do_action( 'rpress_fooditem_shortcode_item', $atts, $i );
 

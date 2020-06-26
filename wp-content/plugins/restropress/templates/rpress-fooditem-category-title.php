@@ -16,7 +16,7 @@ $color = rpress_get_option( 'checkout_color', 'red' );
 
 
 if ( !empty( $shortcode_atts['category_menu'] ) ) {
-  $termParent = $get_food_id;
+  echo $termParent = $get_food_id;
 }
 else {
   $term = get_term( $get_food_id, 'food-category');
